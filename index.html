@@ -548,13 +548,15 @@ footer{border-top:1px solid var(--border);padding:2rem 4rem;max-width:1200px;mar
           <div class="contact-item"><div class="contact-item-icon">📞</div><a href="tel:+16476491480">+1 (647) 649-1480</a></div>
         </div>
       </div>
-      <div>
-        <div class="contact-form">
-          <div class="form-group"><label class="form-label">Your name</label><input class="form-input" type="text" placeholder="Jane Smith"></div>
-          <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" placeholder="jane@company.com"></div>
-          <div class="form-group"><label class="form-label">Message</label><textarea class="form-textarea" placeholder="Tell me about the opportunity..."></textarea></div>
-          <button class="form-btn" id="send-btn">Send message →</button>
-        </div>
+      <div class="contact-form">
+        <form id="contact-form">
+          <input type="hidden" name="access_key" value="a3b3ae10-d0cb-4025-b348-6b74afbb9b2c">
+          <input type="hidden" name="subject" value="New Portfolio Contact">
+          <div class="form-group"><label class="form-label">Your name</label><input class="form-input" type="text" name="name" placeholder="Jane Smith" required></div>
+          <div class="form-group"><label class="form-label">Email</label><input class="form-input" type="email" name="email" placeholder="jane@company.com" required></div>
+          <div class="form-group"><label class="form-label">Message</label><textarea class="form-textarea" name="message" placeholder="Tell me about the opportunity..." required></textarea></div>
+          <button class="form-btn" id="send-btn" type="button">Send message →</button>
+        </form>
       </div>
     </div>
   </div>
@@ -691,10 +693,25 @@ function burst(e){
 document.querySelectorAll('.btn-primary,.btn-secondary,.nav-cta,.form-btn').forEach(btn=>btn.addEventListener('click',e=>burst(e)));
 
 // Send button
-document.getElementById('send-btn').addEventListener('click',function(e){
-  burst(e);this.textContent='Message sent ✓';
-  this.style.background='linear-gradient(135deg,var(--accent3),var(--accent))';
-  setTimeout(()=>{this.textContent='Send message →';this.style.background='';},3000);
+document.getElementById('send-btn').addEventListener('click',async function(e){
+  const form = document.getElementById('contact-form');
+  if (!form.checkValidity()) { form.reportValidity(); return; }
+  const data = new FormData(form);
+  burst(e);
+  this.textContent='Sending...';
+  this.disabled=true;
+  const res = await fetch('https://api.web3forms.com/submit',{method:'POST',body:data});
+  const json = await res.json();
+  if(json.success){
+    this.textContent='Message sent ✓';
+    this.style.background='linear-gradient(135deg,var(--accent3),var(--accent))';
+    form.reset();
+    setTimeout(()=>{this.textContent='Send message →';this.style.background='';this.disabled=false;},3000);
+  } else {
+    this.textContent='Failed — try again';
+    this.style.background='';
+    this.disabled=false;
+  }
 });
 
 // ═══ BOOT ══════════════════════════════════════
