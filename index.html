@@ -342,6 +342,21 @@ footer{border-top:1px solid var(--border);padding:2rem 4rem;max-width:1200px;mar
 
       <div class="skill-card fade-in">
         <div class="skill-card-spotlight"></div>
+        <span class="skill-icon">📈</span>
+        <h3>Machine Learning</h3>
+        <div class="skill-bar-wrap">
+          <div class="skill-bar-row"><span class="skill-bar-label">XGBoost / Scikit-learn</span><span class="skill-bar-pct">85%</span></div>
+          <div class="skill-bar-track"><div class="skill-bar-fill c" data-w="85"></div></div>
+          <div class="skill-bar-row"><span class="skill-bar-label">KMeans Clustering</span><span class="skill-bar-pct">80%</span></div>
+          <div class="skill-bar-track"><div class="skill-bar-fill c" data-w="80"></div></div>
+          <div class="skill-bar-row"><span class="skill-bar-label">Pandas / NumPy</span><span class="skill-bar-pct">88%</span></div>
+          <div class="skill-bar-track"><div class="skill-bar-fill c" data-w="88"></div></div>
+        </div>
+        <div class="skill-tags"><span class="tag">XGBoost</span><span class="tag">KMeans</span><span class="tag">Scikit-learn</span><span class="tag">Pandas</span></div>
+      </div>
+
+      <div class="skill-card fade-in">
+        <div class="skill-card-spotlight"></div>
         <span class="skill-icon">⚡</span>
         <h3>Backend & APIs</h3>
         <div class="skill-bar-wrap">
@@ -429,11 +444,13 @@ footer{border-top:1px solid var(--border);padding:2rem 4rem;max-width:1200px;mar
         <div class="job-header"><div class="job-title">Generative AI Engineer — WMS</div><span class="job-period">Aug 2025 – Present</span></div>
         <div class="job-company">iWMS Global · Toronto, Canada</div>
         <ul class="job-desc">
-          <li>Built end-to-end AI solutions for WMS using RAG + LLMs for context-aware, explainable decision support.</li>
-          <li>Deployed conversational AI chatbot for natural language querying of inventory and operational insights.</li>
-          <li>Designed scalable FastAPI backends integrating LLM workflows with enterprise data systems in real-time.</li>
-          <li>Applied prompt engineering to optimize LLM outputs aligned with business logic.</li>
-          <li>Built Streamlit dashboards for KPI monitoring, forecasting, and performance analytics.</li>
+          <li>Architected an end-to-end Generative AI platform for WMS processing real-time operational queries across inventory, logistics, and decision support using AWS Bedrock and LLMs.</li>
+          <li>Implemented a production RAG pipeline integrating WMS data sources spanning thousands of SKUs and warehouse locations — enabling explainable, context-aware LLM responses.</li>
+          <li>Built and deployed a conversational AI chatbot for natural language querying of live WMS data, reducing manual report requests and improving accessibility for non-technical users.</li>
+          <li>Designed scalable FastAPI backend services connecting LLM workflows to enterprise data systems, supporting real-time multi-table query resolution across 1,000s of inventory records.</li>
+          <li>Engineered multi-stage prompt pipelines and dynamic context injection strategies validated across 1,000+ real operational queries for domain-specific WMS terminology.</li>
+          <li>Developed 3 ML-driven slotting models (XGBoost, KMeans, RL-style) integrated into an analytics dashboard for data-driven forward pick and reserve slotting decisions.</li>
+          <li>Implemented CI/CD pipeline using GitHub Actions automating Docker builds and EC2 deployments for the backend and S3+CloudFront cache invalidations for the frontend, enabling zero-downtime production releases.</li>
         </ul>
       </div>
 
@@ -506,6 +523,13 @@ footer{border-top:1px solid var(--border);padding:2rem 4rem;max-width:1200px;mar
         <div class="project-title">RF Process Automation</div>
         <p class="project-desc">End-to-end RF mobile process development for WMS operations in Körber/HighJump — JSON config, REST integration, Advantage Architect, and custom SSRS reporting.</p>
         <div class="project-stack"><span class="tag">Körber WMS</span><span class="tag">JSON</span><span class="tag">REST API</span><span class="tag green">SSRS</span><span class="tag green">SQL</span></div>
+      </div>
+
+      <div class="project-card fade-in">
+        <div class="project-top"><span class="project-icon">🧩</span></div>
+        <div class="project-title">ML Slotting Optimization Models</div>
+        <p class="project-desc">3 ML-driven slotting models (XGBoost, KMeans, RL-style) enabling data-driven forward pick and reserve slotting decisions — integrated into an analytics dashboard for large-scale warehouse environments.</p>
+        <div class="project-stack"><span class="tag">XGBoost</span><span class="tag">KMeans</span><span class="tag purple">Scikit-learn</span><span class="tag purple">Pandas</span><span class="tag green">Streamlit</span></div>
       </div>
 
     </div>
