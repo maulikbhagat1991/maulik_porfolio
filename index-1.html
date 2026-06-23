@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maulik Bhagat — Generative AI Engineer</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#020818;--accent:#00d4ff;--accent2:#7c3aed;--accent3:#06ffa5;
+  --text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;
+  --border:rgba(0,212,255,0.14);--surface:rgba(13,31,60,0.6);
+  --font-mono:'JetBrains Mono',monospace;--font-body:'Space Grotesk',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);overflow-x:hidden;cursor:none}
+
+#bg-canvas{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:0;pointer-events:none}
+
+.cur{position:fixed;width:10px;height:10px;background:var(--accent);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);mix-blend-mode:screen;transition:width .2s,height .2s,background .2s}
+.cur-ring{position:fixed;width:40px;height:40px;border:1px solid rgba(0,212,255,.4);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .2s,height .2s,border-color .2s}
+
+.wrap{position:relative;z-index:1}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1.2rem 4rem;background:rgba(2,8,24,.65);backdrop-filter:blur(22px);border-bottom:1px solid var(--border);transition:background .3s}
+.nav-logo{font-family:var(--font-mono);font-size:.9rem;color:var(--accent)}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links a{font-family:var(--font-mono);font-size:.78rem;color:var(--text2);text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--accent)}
+.nav-cta{font-family:var(--font-mono);font-size:.78rem;padding:.45rem 1.1rem;border:1px solid var(--accent);border-radius:4px;color:var(--accent);text-decoration:none;transition:all .2s}
+.nav-cta:hover{background:var(--accent);color:#020818}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:8rem 4rem 4rem;text-align:center;position:relative}
+.hero-inner{max-width:900px}
+.hero-tag{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--font-mono);font-size:.7rem;color:var(--accent);background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.2);border-radius:100px;padding:.35rem 1rem;margin-bottom:2rem;text-transform:uppercase;letter-spacing:.1em}
+.tag-dot{width:6px;height:6px;border-radius:50%;background:var(--accent3);animation:tdot 1.5s ease-in-out infinite}
+@keyframes tdot{0%,100%{box-shadow:0 0 0 0 rgba(6,255,165,.7)}70%{box-shadow:0 0 0 8px rgba(6,255,165,0)}}
+
+.hero-name{font-size:clamp(3.5rem,9vw,8rem);font-weight:700;line-height:.9;margin-bottom:1rem;background:linear-gradient(135deg,#fff 0%,var(--accent) 40%,var(--accent2) 70%,#fff 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:300% 300%;animation:gshift 5s ease infinite}
+@keyframes gshift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+
+.hero-role{font-family:var(--font-mono);font-size:clamp(.85rem,1.8vw,1.2rem);color:var(--text2);letter-spacing:.15em;text-transform:uppercase;margin-bottom:2rem}
+.hero-role .hl{color:var(--accent)}
+.hero-desc{font-size:1.05rem;color:var(--text2);max-width:620px;margin:0 auto 3rem;line-height:1.8}
+
+.hero-stats{display:flex;justify-content:center;gap:4rem;margin-bottom:3rem}
+.stat-num{font-size:3rem;font-weight:700;line-height:1;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-label{font-family:var(--font-mono);font-size:.65rem;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;margin-top:.3rem}
+
+.hero-btns{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap}
+.btn-p{display:inline-flex;align-items:center;gap:.5rem;padding:.9rem 2.2rem;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#020818;font-weight:700;font-size:.9rem;border-radius:8px;text-decoration:none;transition:all .25s}
+.btn-p:hover{transform:translateY(-3px);box-shadow:0 16px 48px rgba(0,212,255,.4)}
+.btn-s{display:inline-flex;align-items:center;gap:.5rem;padding:.9rem 2.2rem;border:1px solid var(--border);color:var(--text2);border-radius:8px;text-decoration:none;transition:all .25s;font-size:.9rem}
+.btn-s:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-3px)}
+
+.scroll-hint{position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.5rem}
+.scroll-hint span{font-family:var(--font-mono);font-size:.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:.15em}
+.scroll-line{width:1px;height:50px;background:linear-gradient(to bottom,var(--accent),transparent);animation:sline 1.6s ease-in-out infinite}
+@keyframes sline{0%,100%{opacity:0;transform:scaleY(0);transform-origin:top}50%{opacity:1;transform:scaleY(1)}}
+
+/* SECTIONS */
+section{position:relative;z-index:1}
+.sw{max-width:1200px;margin:0 auto;padding:7rem 4rem}
+.s-label{font-family:var(--font-mono);font-size:.7rem;color:var(--accent);text-transform:uppercase;letter-spacing:.18em;margin-bottom:.75rem}
+.s-title{font-size:clamp(2rem,4vw,3rem);font-weight:700;line-height:1.1;margin-bottom:1rem}
+.s-sub{color:var(--text2);font-size:1rem;max-width:540px;margin-bottom:3.5rem;line-height:1.7}
+.divider{width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent)}
+
+.reveal{opacity:0;transform:translateY(32px);transition:opacity .75s ease,transform .75s ease}
+.reveal.on{opacity:1;transform:translateY(0)}
+
+/* SKILLS — 3D FLIP */
+.skills-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem}
+.flip-wrap{height:270px;cursor:none}
+.flip-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .65s cubic-bezier(.16,1,.3,1)}
+.flip-wrap:hover .flip-inner{transform:rotateY(180deg)}
+.flip-front,.flip-back{position:absolute;inset:0;backface-visibility:hidden;border-radius:16px;padding:1.75rem;background:rgba(13,31,60,.65);backdrop-filter:blur(16px);border:1px solid var(--border);display:flex;flex-direction:column;transition:border-color .3s}
+.flip-wrap:hover .flip-front{border-color:rgba(0,212,255,.3)}
+.flip-back{transform:rotateY(180deg);background:rgba(20,8,50,.75);border-color:rgba(124,58,237,.25);justify-content:center;align-items:center;text-align:center}
+.sk-icon{font-size:2rem;margin-bottom:.9rem;display:block}
+.flip-front h3{font-size:1.05rem;font-weight:600;margin-bottom:1rem}
+.br-row{display:flex;justify-content:space-between;margin-bottom:.22rem}
+.br-label{font-size:.67rem;color:var(--text3);font-family:var(--font-mono)}
+.br-pct{font-size:.65rem;color:var(--accent);font-family:var(--font-mono)}
+.br-track{height:3px;background:rgba(255,255,255,.06);border-radius:2px;margin-bottom:.5rem;overflow:hidden}
+.br-fill{height:100%;border-radius:2px;width:0;transition:width 1.2s cubic-bezier(.16,1,.3,1)}
+.fc{background:linear-gradient(90deg,var(--accent),var(--accent2))}
+.fp{background:linear-gradient(90deg,var(--accent2),#a78bfa)}
+.fg{background:linear-gradient(90deg,var(--accent3),var(--accent))}
+.sk-tags{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:auto}
+.tag{font-family:var(--font-mono);font-size:.63rem;padding:.18rem .55rem;border-radius:4px}
+.tc{background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.18);color:var(--accent)}
+.tp{background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);color:#a78bfa}
+.tg{background:rgba(6,255,165,.07);border:1px solid rgba(6,255,165,.15);color:var(--accent3)}
+.flip-hint{font-family:var(--font-mono);font-size:.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-top:.7rem}
+.flip-hint::before{content:'↻ ';color:var(--accent3)}
+.back-title{font-size:1.25rem;font-weight:700;margin-bottom:.9rem;color:#a78bfa}
+.back-desc{font-size:.86rem;color:var(--text2);line-height:1.75}
+
+/* TIMELINE */
+.timeline{position:relative}
+.timeline::before{content:'';position:absolute;left:0;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,var(--accent),var(--accent2),transparent)}
+.tl-item{padding-left:2.5rem;padding-bottom:3rem;position:relative}
+.tl-item::before{content:'';position:absolute;left:-5px;top:.4rem;width:11px;height:11px;border-radius:50%;background:var(--bg);border:2px solid var(--accent);box-shadow:0 0 16px rgba(0,212,255,.6)}
+.tl-item.dim::before{border-color:var(--text3);box-shadow:none}
+.tl-card{background:rgba(13,31,60,.5);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:12px;padding:1.5rem 1.7rem;transition:border-color .3s,transform .3s,box-shadow .3s}
+.tl-card:hover{border-color:rgba(0,212,255,.28);transform:translateX(6px);box-shadow:0 8px 40px rgba(0,212,255,.07)}
+.tl-head{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:.4rem;flex-wrap:wrap}
+.tl-title{font-size:1.05rem;font-weight:600}
+.tl-period{font-family:var(--font-mono);font-size:.68rem;color:var(--accent);background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.15);border-radius:4px;padding:.18rem .55rem;white-space:nowrap}
+.tl-period.muted{color:var(--text3);background:transparent;border-color:var(--border)}
+.tl-company{font-family:var(--font-mono);font-size:.78rem;color:var(--text3);margin-bottom:.9rem}
+.tl-list{list-style:none;display:flex;flex-direction:column;gap:.35rem}
+.tl-list li{font-size:.87rem;color:var(--text2);padding-left:1.2rem;position:relative;line-height:1.65}
+.tl-list li::before{content:'▸';position:absolute;left:0;color:var(--accent);font-size:.6rem;top:.3rem}
+
+/* PROJECTS */
+.proj-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1.5rem}
+.proj-card{background:rgba(13,31,60,.55);backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:16px;padding:1.8rem;transition:border-color .3s,box-shadow .3s;cursor:none;position:relative;overflow:hidden;transform-style:preserve-3d}
+.proj-card::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(0,212,255,.055),transparent 60%);opacity:0;transition:opacity .3s;pointer-events:none}
+.proj-card:hover::after{opacity:1}
+.proj-card:hover{border-color:rgba(0,212,255,.3);box-shadow:0 24px 80px rgba(0,212,255,.1)}
+.proj-icon{font-size:2.2rem;margin-bottom:1rem;display:block}
+.proj-title{font-size:1rem;font-weight:600;margin-bottom:.55rem}
+.proj-desc{font-size:.84rem;color:var(--text2);line-height:1.7;margin-bottom:1.2rem}
+.proj-stack{display:flex;flex-wrap:wrap;gap:.4rem}
+
+/* CERTS */
+.certs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem}
+.cert-card{background:rgba(13,31,60,.5);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:10px;padding:1.2rem 1.4rem;display:flex;gap:1rem;align-items:flex-start;transition:all .25s;cursor:none}
+.cert-card:hover{border-color:rgba(124,58,237,.4);transform:translateX(5px)}
+.cert-badge{width:38px;height:38px;border-radius:8px;background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.2);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.cert-name{font-size:.83rem;font-weight:600;margin-bottom:.2rem;line-height:1.3}
+.cert-date{font-family:var(--font-mono);font-size:.67rem;color:var(--text3)}
+
+/* CONTACT */
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;background:rgba(13,31,60,.45);backdrop-filter:blur(18px);border:1px solid var(--border);border-radius:20px;padding:3rem;position:relative;overflow:hidden}
+.contact-grid::before{content:'';position:absolute;top:-60px;right:-60px;width:280px;height:280px;background:radial-gradient(circle,rgba(124,58,237,.12),transparent 70%);pointer-events:none}
+.ct-title{font-size:2rem;font-weight:700;margin-bottom:1rem;line-height:1.1}
+.ct-title span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.ct-desc{color:var(--text2);font-size:.93rem;margin-bottom:2rem;line-height:1.7}
+.ct-items{display:flex;flex-direction:column;gap:1rem}
+.ct-item{display:flex;align-items:center;gap:.75rem;font-size:.87rem;color:var(--text2);transition:color .2s}
+.ct-item:hover{color:var(--text)}
+.ct-icon{width:36px;height:36px;border-radius:8px;background:rgba(0,212,255,.07);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;transition:all .2s}
+.ct-item:hover .ct-icon{border-color:var(--accent);background:rgba(0,212,255,.12)}
+.ct-item a{color:inherit;text-decoration:none}
+.cf{display:flex;flex-direction:column;gap:1rem}
+.fg-w{display:flex;flex-direction:column;gap:.4rem}
+.f-label{font-family:var(--font-mono);font-size:.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:.1em}
+.f-input,.f-textarea{background:rgba(5,15,36,.8);backdrop-filter:blur(8px);border:1px solid var(--border);border-radius:8px;padding:.78rem 1rem;color:var(--text);font-family:var(--font-body);font-size:.88rem;outline:none;transition:border-color .2s,box-shadow .2s;width:100%}
+.f-input:focus,.f-textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,212,255,.08)}
+.f-textarea{resize:vertical;min-height:110px}
+.f-btn{padding:.9rem 2rem;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#020818;font-weight:700;font-size:.9rem;border-radius:8px;border:none;cursor:none;font-family:var(--font-body);transition:all .25s;display:flex;align-items:center;justify-content:center;gap:.5rem}
+.f-btn:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,212,255,.35)}
+
+footer{border-top:1px solid var(--border);padding:2rem 4rem;max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;font-family:var(--font-mono);font-size:.73rem;color:var(--text3);position:relative;z-index:1}
+
+.particle{position:fixed;pointer-events:none;z-index:9990;border-radius:50%;animation:pfly var(--dur) ease-out forwards}
+@keyframes pfly{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(0)}}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:rgba(0,212,255,.2);border-radius:2px}
+
+@media(max-width:768px){nav{padding:1rem 1.5rem}.nav-links{display:none}.sw{padding:4rem 1.5rem}.hero{padding:6rem 1.5rem 3rem}.hero-stats{gap:1.5rem;flex-wrap:wrap}.contact-grid{grid-template-columns:1fr;gap:2rem;padding:1.5rem}footer{padding:1.5rem;flex-direction:column;gap:.5rem;text-align:center}}
+</style>
+</head>
+<body>
+
+<div class="cur" id="cur"></div>
+<div class="cur-ring" id="cring"></div>
+<canvas id="bg-canvas"></canvas>
+
+<div class="wrap">
+
+<nav id="nav">
+  <div class="nav-logo">mb<span style="color:var(--accent2)">.</span>ai</div>
+  <ul class="nav-links">
+    <li><a href="#skills">// skills</a></li>
+    <li><a href="#experience">// experience</a></li>
+    <li><a href="#projects">// projects</a></li>
+    <li><a href="#contact">// contact</a></li>
+  </ul>
+  <a href="mailto:maulikbhagat626@gmail.com" class="nav-cta">connect →</a>
+</nav>
+
+<!-- HERO -->
+<section>
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag"><span class="tag-dot"></span>available for opportunities</div>
+    <h1 class="hero-name">Maulik Bhagat</h1>
+    <div class="hero-role">— <span class="hl" id="typed"></span><span id="tc" style="color:var(--accent)">|</span> —</div>
+    <p class="hero-desc">Building intelligent systems at the intersection of LLMs, RAG architectures, and enterprise software. 7+ years shipping production-grade applications — now focused on the AI-native future.</p>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num" data-count="7" data-suffix="+">7+</div><div class="stat-label">years experience</div></div>
+      <div class="stat"><div class="stat-num" data-count="3" data-suffix="+">3+</div><div class="stat-label">years AI / WMS</div></div>
+      <div class="stat"><div class="stat-num" data-count="6" data-suffix="">6</div><div class="stat-label">certifications</div></div>
+    </div>
+    <div class="hero-btns">
+      <a href="#contact" class="btn-p">Let's build something ↗</a>
+      <a href="#experience" class="btn-s">View my work</a>
+    </div>
+  </div>
+  <div class="scroll-hint"><span>scroll</span><div class="scroll-line"></div></div>
+</div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SKILLS -->
+<section id="skills">
+<div class="sw">
+  <p class="s-label reveal">01 / expertise</p>
+  <h2 class="s-title reveal">What I bring to the table</h2>
+  <p class="s-sub reveal">A full-stack AI engineering toolkit — from LLM orchestration to enterprise backends. <span style="color:var(--accent3);font-family:var(--font-mono);font-size:.78rem">↻ hover cards to flip</span></p>
+  <div class="skills-grid">
+
+    <div class="flip-wrap reveal">
+      <div class="flip-inner">
+        <div class="flip-front">
+          <span class="sk-icon">🧠</span><h3>Generative AI & LLMs</h3>
+          <div>
+            <div class="br-row"><span class="br-label">RAG Architecture</span><span class="br-pct">95%</span></div><div class="br-track"><div class="br-fill fc" data-w="95"></div></div>
+            <div class="br-row"><span class="br-label">LLM Integration</span><span class="br-pct">90%</span></div><div class="br-track"><div class="br-fill fc" data-w="90"></div></div>
+            <div class="br-row"><span class="br-label">Prompt Engineering</span><span class="br-pct">88%</span></div><div class="br-track"><div class="br-fill fc" data-w="88"></div></div>
+          </div>
+          <div class="sk-tags"><span class="tag tc">Python</span><span class="tag tc">AWS Bedrock</span><span class="tag tc">LangChain</span></div>
+          <div class="flip-hint">flip for details</div>
+        </div>
+        <div class="flip-back">
+          <div class="back-title">🧠 GenAI & LLMs</div>
+          <div class="back-desc">Production RAG pipelines on AWS Bedrock processing thousands of real WMS queries with context-aware, explainable LLM responses. Validated across 1,000+ operational queries.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flip-wrap reveal">
+      <div class="flip-inner">
+        <div class="flip-front">
+          <span class="sk-icon">📈</span><h3>Machine Learning</h3>
+          <div>
+            <div class="br-row"><span class="br-label">XGBoost / Scikit-learn</span><span class="br-pct">85%</span></div><div class="br-track"><div class="br-fill fc" data-w="85"></div></div>
+            <div class="br-row"><span class="br-label">KMeans Clustering</span><span class="br-pct">80%</span></div><div class="br-track"><div class="br-fill fc" data-w="80"></div></div>
+            <div class="br-row"><span class="br-label">Pandas / NumPy</span><span class="br-pct">88%</span></div><div class="br-track"><div class="br-fill fc" data-w="88"></div></div>
+          </div>
+          <div class="sk-tags"><span class="tag tc">XGBoost</span><span class="tag tc">KMeans</span><span class="tag tc">Scikit-learn</span></div>
+          <div class="flip-hint">flip for details</div>
+        </div>
+        <div class="flip-back">
+          <div class="back-title">📈 Machine Learning</div>
+          <div class="back-desc">Built 3 ML-driven slotting models (XGBoost, KMeans, RL-style) for warehouse optimization, plus forecasting and analytics dashboards using Pandas, NumPy, and Streamlit.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flip-wrap reveal">
+      <div class="flip-inner">
+        <div class="flip-front">
+          <span class="sk-icon">⚡</span><h3>Backend & APIs</h3>
+          <div>
+            <div class="br-row"><span class="br-label">FastAPI / Python</span><span class="br-pct">92%</span></div><div class="br-track"><div class="br-fill fp" data-w="92"></div></div>
+            <div class="br-row"><span class="br-label">.NET Core / C#</span><span class="br-pct">85%</span></div><div class="br-track"><div class="br-fill fp" data-w="85"></div></div>
+            <div class="br-row"><span class="br-label">REST API Design</span><span class="br-pct">90%</span></div><div class="br-track"><div class="br-fill fp" data-w="90"></div></div>
+          </div>
+          <div class="sk-tags"><span class="tag tp">Node.js</span><span class="tag tp">ASP.NET</span><span class="tag tp">Entity FW</span></div>
+          <div class="flip-hint">flip for details</div>
+        </div>
+        <div class="flip-back">
+          <div class="back-title">⚡ Backend & APIs</div>
+          <div class="back-desc">Scalable FastAPI services connecting LLM workflows to enterprise WMS data with sub-second latency. 7+ years building REST APIs and backend systems across Python, .NET, and Node.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flip-wrap reveal">
+      <div class="flip-inner">
+        <div class="flip-front">
+          <span class="sk-icon">🗄️</span><h3>Data & Analytics</h3>
+          <div>
+            <div class="br-row"><span class="br-label">MS SQL / Stored Procs</span><span class="br-pct">93%</span></div><div class="br-track"><div class="br-fill fg" data-w="93"></div></div>
+            <div class="br-row"><span class="br-label">Power BI</span><span class="br-pct">82%</span></div><div class="br-track"><div class="br-fill fg" data-w="82"></div></div>
+            <div class="br-row"><span class="br-label">ETL Pipelines</span><span class="br-pct">80%</span></div><div class="br-track"><div class="br-fill fg" data-w="80"></div></div>
+          </div>
+          <div class="sk-tags"><span class="tag tg">Streamlit</span><span class="tag tg">SSRS</span><span class="tag tg">ETL</span></div>
+          <div class="flip-hint">flip for details</div>
+        </div>
+        <div class="flip-back">
+          <div class="back-title">🗄️ Data & Analytics</div>
+          <div class="back-desc">End-to-end data pipelines, Power BI KPI dashboards, complex SQL across multi-table warehouse schemas, SSRS custom reporting, and real-time Streamlit analytics.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flip-wrap reveal">
+      <div class="flip-inner">
+        <div class="flip-front">
+          <span class="sk-icon">📦</span><h3>WMS / Enterprise</h3>
+          <div>
+            <div class="br-row"><span class="br-label">Infios / Körber</span><span class="br-pct">95%</span></div><div class="br-track"><div class="br-fill fc" data-w="95"></div></div>
+            <div class="br-row"><span class="br-label">RF Processes</span><span class="br-pct">90%</span></div><div class="br-track"><div class="br-fill fc" data-w="90"></div></div>
+            <div class="br-row"><span class="br-label">WMS Configuration</span><span class="br-pct">92%</span></div><div class="br-track"><div class="br-fill fc" data-w="92"></div></div>
+          </div>
+          <div class="sk-tags"><span class="tag tc">HighJump</span><span class="tag tc">Advantage Arch.</span></div>
+          <div class="flip-hint">flip for details</div>
+        </div>
+        <div class="flip-back">
+          <div class="back-title">📦 WMS / Enterprise</div>
+          <div class="back-desc">3+ years deep in Infios/Körber/HighJump. Certified Advantage Professional — RF processes, Page Editor, Advantage Architect, and full enterprise WMS configuration.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flip-wrap reveal">
+      <div class="flip-inner">
+        <div class="flip-front">
+          <span class="sk-icon">🔧</span><h3>Tools & DevOps</h3>
+          <div>
+            <div class="br-row"><span class="br-label">GitHub Actions / CI/CD</span><span class="br-pct">88%</span></div><div class="br-track"><div class="br-fill fg" data-w="88"></div></div>
+            <div class="br-row"><span class="br-label">Docker / EC2 / S3</span><span class="br-pct">82%</span></div><div class="br-track"><div class="br-fill fg" data-w="82"></div></div>
+            <div class="br-row"><span class="br-label">Postman / Testing</span><span class="br-pct">92%</span></div><div class="br-track"><div class="br-fill fg" data-w="92"></div></div>
+          </div>
+          <div class="sk-tags"><span class="tag tg">Docker</span><span class="tag tg">AWS</span><span class="tag tg">GitHub</span></div>
+          <div class="flip-hint">flip for details</div>
+        </div>
+        <div class="flip-back">
+          <div class="back-title">🔧 Tools & DevOps</div>
+          <div class="back-desc">CI/CD pipelines with GitHub Actions — Docker builds, EC2 deployments, S3+CloudFront invalidations for zero-downtime production releases.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</section>
+
+<div class="divider"></div>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+<div class="sw">
+  <p class="s-label reveal">02 / experience</p>
+  <h2 class="s-title reveal">Career timeline</h2>
+  <p class="s-sub reveal">7+ years across AI engineering, WMS platforms, full-stack development, and enterprise systems.</p>
+  <div class="timeline">
+
+    <div class="tl-item reveal">
+      <div class="tl-card">
+        <div class="tl-head"><div class="tl-title">Generative AI Engineer — WMS Product Development</div><span class="tl-period">Aug 2025 – Present</span></div>
+        <div class="tl-company">iWMS Global · Toronto, Canada</div>
+        <ul class="tl-list">
+          <li>Architected an end-to-end Generative AI platform for WMS processing real-time operational queries across inventory, logistics, and decision support using AWS Bedrock and LLMs.</li>
+          <li>Implemented a production RAG pipeline integrating WMS data sources spanning thousands of SKUs and warehouse locations — enabling explainable, context-aware LLM responses.</li>
+          <li>Built and deployed a conversational AI chatbot for natural language querying of live WMS data, reducing manual report requests and improving accessibility for non-technical users.</li>
+          <li>Designed scalable FastAPI backend services connecting LLM workflows to enterprise data systems, supporting real-time multi-table query resolution across 1,000s of inventory records.</li>
+          <li>Engineered multi-stage prompt pipelines and dynamic context injection strategies validated across 1,000+ real operational queries for domain-specific WMS terminology.</li>
+          <li>Developed 3 ML-driven slotting models (XGBoost, KMeans, RL-style) integrated into an analytics dashboard for data-driven forward pick and reserve slotting decisions.</li>
+          <li>Implemented CI/CD pipeline using GitHub Actions automating Docker builds and EC2 deployments for the backend and S3+CloudFront cache invalidations for the frontend, enabling zero-downtime production releases.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tl-item reveal">
+      <div class="tl-card">
+        <div class="tl-head"><div class="tl-title">Developer L2 — WMS</div><span class="tl-period">Aug 2022 – Present</span></div>
+        <div class="tl-company">iWMS Global · Toronto, Canada</div>
+        <ul class="tl-list">
+          <li>Developed RF processes for Inbound/Outbound WMS operations using JSON & REST APIs in Körber/HighJump.</li>
+          <li>Led technical config using Advantage Architect, Page Editor, and SSRS for custom reporting.</li>
+          <li>Authored complex SQL stored procedures and joins for enterprise data manipulation.</li>
+          <li>Built Power BI dashboards supporting analytics and project decision-making.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tl-item dim reveal">
+      <div class="tl-card">
+        <div class="tl-head"><div class="tl-title">.NET Core Developer</div><span class="tl-period muted">Aug 2021 – Aug 2022</span></div>
+        <div class="tl-company">WIS International · Toronto, Canada</div>
+        <ul class="tl-list">
+          <li>Migrated legacy ASP.NET apps to .NET Core MVC — improved scalability and maintainability.</li>
+          <li>Built web APIs integrated with SQL Server using Entity Framework for relational data access.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tl-item dim reveal">
+      <div class="tl-card">
+        <div class="tl-head"><div class="tl-title">ERP / ASP.NET / Web Developer</div><span class="tl-period muted">2013 – 2018</span></div>
+        <div class="tl-company">Sterling Biotech · Techno Era · D-Hit Solutions · Me & My Tech · India</div>
+        <ul class="tl-list">
+          <li>5 years across ERP development, MVC web apps, REST services, SQL stored procedures, and client projects.</li>
+          <li>Built payment gateways, CRM/ERP modules, and full client-server validation systems from scratch.</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PROJECTS -->
+<section id="projects">
+<div class="sw">
+  <p class="s-label reveal">03 / projects</p>
+  <h2 class="s-title reveal">Featured builds</h2>
+  <p class="s-sub reveal">Real systems solving real operational problems — AI-powered, production-deployed.</p>
+  <div class="proj-grid">
+
+    <div class="proj-card reveal">
+      <span class="proj-icon">🤖</span>
+      <div class="proj-title">WMS AI Chatbot</div>
+      <p class="proj-desc">Conversational AI interface for warehouse operators to query inventory and get operational insights using natural language — powered by RAG + LLMs on AWS Bedrock.</p>
+      <div class="proj-stack"><span class="tag tc">Python</span><span class="tag tc">RAG</span><span class="tag tc">FastAPI</span><span class="tag tp">LangChain</span><span class="tag tp">AWS Bedrock</span></div>
+    </div>
+
+    <div class="proj-card reveal">
+      <span class="proj-icon">📡</span>
+      <div class="proj-title">Real-Time WMS API Layer</div>
+      <p class="proj-desc">Scalable FastAPI backend connecting LLM workflows to enterprise WMS data, enabling sub-second query processing and explainable AI responses for business users.</p>
+      <div class="proj-stack"><span class="tag tc">FastAPI</span><span class="tag tc">MS SQL</span><span class="tag tg">REST API</span><span class="tag tg">JSON</span><span class="tag tc">Python</span></div>
+    </div>
+
+    <div class="proj-card reveal">
+      <span class="proj-icon">📊</span>
+      <div class="proj-title">Ops Intelligence Dashboard</div>
+      <p class="proj-desc">Interactive Streamlit dashboard for warehouse KPI monitoring, forecasting validation, and live analytics — replacing static reports with real-time intelligence.</p>
+      <div class="proj-stack"><span class="tag tp">Streamlit</span><span class="tag tp">Power BI</span><span class="tag tc">Python</span><span class="tag tg">SQL</span></div>
+    </div>
+
+    <div class="proj-card reveal">
+      <span class="proj-icon">🧩</span>
+      <div class="proj-title">ML Slotting Optimization Models</div>
+      <p class="proj-desc">3 ML-driven slotting models (XGBoost, KMeans, RL-style) enabling data-driven forward pick and reserve slotting decisions across a large-scale warehouse environment.</p>
+      <div class="proj-stack"><span class="tag tc">XGBoost</span><span class="tag tc">KMeans</span><span class="tag tp">Scikit-learn</span><span class="tag tp">Pandas</span><span class="tag tg">Streamlit</span></div>
+    </div>
+
+    <div class="proj-card reveal">
+      <span class="proj-icon">🏭</span>
+      <div class="proj-title">RF Process Automation</div>
+      <p class="proj-desc">End-to-end RF mobile process development for WMS operations in Körber/HighJump — JSON config, REST integration, Advantage Architect, and custom SSRS reporting.</p>
+      <div class="proj-stack"><span class="tag tc">Körber WMS</span><span class="tag tc">JSON</span><span class="tag tg">REST API</span><span class="tag tg">SSRS</span><span class="tag tg">SQL</span></div>
+    </div>
+
+    <div class="proj-card reveal">
+      <span class="proj-icon">🚀</span>
+      <div class="proj-title">CI/CD Deployment Pipeline</div>
+      <p class="proj-desc">GitHub Actions pipeline automating Docker builds, EC2 backend deployments, and S3+CloudFront cache invalidations — enabling zero-downtime production releases.</p>
+      <div class="proj-stack"><span class="tag tg">GitHub Actions</span><span class="tag tg">Docker</span><span class="tag tc">EC2</span><span class="tag tc">S3</span><span class="tag tp">CloudFront</span></div>
+    </div>
+
+  </div>
+</div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CERTIFICATIONS -->
+<section>
+<div class="sw">
+  <p class="s-label reveal">04 / certifications</p>
+  <h2 class="s-title reveal">Credentials</h2><br>
+  <div class="certs-grid">
+    <div class="cert-card reveal"><div class="cert-badge">🏆</div><div><div class="cert-name">Warehouse Advantage Certified Associate</div><div class="cert-date">Infios · May 2025</div></div></div>
+    <div class="cert-card reveal"><div class="cert-badge">🥇</div><div><div class="cert-name">Warehouse Advantage Certified Professional</div><div class="cert-date">Infios · May 2024</div></div></div>
+    <div class="cert-card reveal"><div class="cert-badge">📦</div><div><div class="cert-name">Körber Core Technical & Product Training</div><div class="cert-date">Sept 2022</div></div></div>
+    <div class="cert-card reveal"><div class="cert-badge">🗄️</div><div><div class="cert-name">SQL Server Certificate</div><div class="cert-date">Test Dome · May 2021</div></div></div>
+    <div class="cert-card reveal"><div class="cert-badge">🐍</div><div><div class="cert-name">Django Full Stack Developer</div><div class="cert-date">Udemy · Mar 2021</div></div></div>
+    <div class="cert-card reveal"><div class="cert-badge">🌐</div><div><div class="cert-name">Complete Node.js Web Developer</div><div class="cert-date">Udemy · Jan 2022</div></div></div>
+  </div>
+</div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CONTACT -->
+<section id="contact">
+<div class="sw">
+  <p class="s-label reveal">05 / contact</p>
+  <div class="contact-grid reveal">
+    <div>
+      <div class="ct-title">Let's work<br><span>together.</span></div>
+      <p class="ct-desc">Open to AI engineering roles, WMS product opportunities, and interesting problems at the intersection of LLMs and enterprise software.</p>
+      <div class="ct-items">
+        <div class="ct-item"><div class="ct-icon">✉</div><a href="mailto:maulikbhagat626@gmail.com">maulikbhagat626@gmail.com</a></div>
+        <div class="ct-item"><div class="ct-icon">📍</div><span>Toronto, Ontario, Canada</span></div>
+        <div class="ct-item"><div class="ct-icon">💼</div><a href="https://linkedin.com/in/maulik-bhagat-79719956" target="_blank">linkedin.com/in/maulik-bhagat</a></div>
+        <div class="ct-item"><div class="ct-icon">📞</div><a href="tel:+16476491480">+1 (647) 649-1480</a></div>
+      </div>
+    </div>
+    <div class="cf">
+      <form id="contact-form">
+        <input type="hidden" name="access_key" value="a3b3ae10-d0cb-4025-b348-6b74afbb9b2c">
+        <input type="hidden" name="subject" value="New Portfolio Contact">
+        <div class="fg-w"><label class="f-label">Your name</label><input class="f-input" type="text" name="name" placeholder="Jane Smith" required></div>
+        <div class="fg-w"><label class="f-label">Email</label><input class="f-input" type="email" name="email" placeholder="jane@company.com" required></div>
+        <div class="fg-w"><label class="f-label">Message</label><textarea class="f-textarea" name="message" placeholder="Tell me about the opportunity..." required></textarea></div>
+        <button class="f-btn" id="send-btn" type="button">Send message →</button>
+      </form>
+    </div>
+  </div>
+</div>
+</section>
+
+<footer>
+  <span>© 2026 Maulik Bhagat</span>
+  <span style="color:var(--accent)">Generative AI Engineer · Toronto</span>
+  <span>Built with Three.js ✦</span>
+</footer>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ═══ CURSOR
+const cur=document.getElementById('cur'),cring=document.getElementById('cring');
+let mx=innerWidth/2,my=innerHeight/2,rx=mx,ry=my;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+(function loop(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;cring.style.left=rx+'px';cring.style.top=ry+'px';requestAnimationFrame(loop);})();
+document.querySelectorAll('a,button,.flip-wrap,.proj-card,.cert-card').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cur.style.width='20px';cur.style.height='20px';cur.style.background='var(--accent2)';cring.style.width='56px';cring.style.height='56px';cring.style.borderColor='rgba(124,58,237,.5)';});
+  el.addEventListener('mouseleave',()=>{cur.style.width='10px';cur.style.height='10px';cur.style.background='var(--accent)';cring.style.width='40px';cring.style.height='40px';cring.style.borderColor='rgba(0,212,255,.4)';});
+});
+
+// ═══ THREE.JS
+const canvas=document.getElementById('bg-canvas');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth,innerHeight);
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.1,1000);
+camera.position.z=30;
+
+// Galaxy particles
+const N=6000,geo=new THREE.BufferGeometry();
+const pos=new Float32Array(N*3),col=new Float32Array(N*3),sz=new Float32Array(N);
+const pal=[new THREE.Color(0x00d4ff),new THREE.Color(0x7c3aed),new THREE.Color(0x06ffa5),new THREE.Color(0xa78bfa),new THREE.Color(0xffffff)];
+for(let i=0;i<N;i++){
+  const arm=Math.floor(Math.random()*3),t=Math.random();
+  const aA=(arm/3)*Math.PI*2,r=5+t*55,a=aA+t*Math.PI*4+(Math.random()-.5)*.8,sp=(1-t)*2+Math.random()*3;
+  pos[i*3]=Math.cos(a)*r+(Math.random()-.5)*sp;
+  pos[i*3+1]=(Math.random()-.5)*8;
+  pos[i*3+2]=Math.sin(a)*r+(Math.random()-.5)*sp;
+  const c=pal[Math.floor(Math.random()*pal.length)];
+  col[i*3]=c.r;col[i*3+1]=c.g;col[i*3+2]=c.b;
+  sz[i]=Math.random()*2.2+.3;
+}
+geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+geo.setAttribute('color',new THREE.BufferAttribute(col,3));
+geo.setAttribute('size',new THREE.BufferAttribute(sz,1));
+const stars=new THREE.Points(geo,new THREE.PointsMaterial({size:.18,vertexColors:true,transparent:true,opacity:.82,sizeAttenuation:true,blending:THREE.AdditiveBlending,depthWrite:false}));
+scene.add(stars);
+
+// Floating geometries
+function wf(g,c){return new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:c,wireframe:true,transparent:true,opacity:.22}));}
+const objs=[];
+const ico=wf(new THREE.IcosahedronGeometry(5,1),0x00d4ff); ico.position.set(-18,6,-10); scene.add(ico); objs.push({m:ico,rx:.003,ry:.005,fy:6,fa:.4,fp:0});
+const tor=wf(new THREE.TorusGeometry(4,.6,12,40),0x7c3aed); tor.position.set(20,-4,-12); scene.add(tor); objs.push({m:tor,rx:.004,ry:.003,fy:-4,fa:.35,fp:1});
+const tk=wf(new THREE.TorusKnotGeometry(3,.6,80,12),0x06ffa5); tk.position.set(10,14,-18); scene.add(tk); objs.push({m:tk,rx:.005,ry:.004,fy:14,fa:.3,fp:2});
+const oct=wf(new THREE.OctahedronGeometry(3.5),0xa78bfa); oct.position.set(-14,-12,-8); scene.add(oct); objs.push({m:oct,rx:.006,ry:.003,fy:-12,fa:.45,fp:.5});
+const tet=wf(new THREE.TetrahedronGeometry(2.5),0x00d4ff); tet.position.set(24,10,-5); scene.add(tet); objs.push({m:tet,rx:.004,ry:.007,fy:10,fa:.38,fp:3});
+
+scene.add(new THREE.AmbientLight(0xffffff,.4));
+const pl1=new THREE.PointLight(0x00d4ff,1.5,60); pl1.position.set(10,10,10); scene.add(pl1);
+const pl2=new THREE.PointLight(0x7c3aed,1.2,60); pl2.position.set(-10,-10,10); scene.add(pl2);
+
+let tx=0,ty=0;
+document.addEventListener('mousemove',e=>{tx=(e.clientX/innerWidth-.5)*.8;ty=(e.clientY/innerHeight-.5)*.5;});
+window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+
+const clk=new THREE.Clock();
+(function animate(){
+  requestAnimationFrame(animate);
+  const t=clk.getElapsedTime();
+  stars.rotation.y=t*.018; stars.rotation.x=Math.sin(t*.05)*.04;
+  objs.forEach(o=>{o.m.rotation.x+=o.rx;o.m.rotation.y+=o.ry;o.m.position.y=o.fy+Math.sin(t*o.fa+o.fp)*1.4;});
+  camera.position.x+=(tx*5-camera.position.x)*.04;
+  camera.position.y+=(-ty*3-camera.position.y)*.04;
+  camera.lookAt(scene.position);
+  renderer.render(scene,camera);
+})();
+
+// ═══ TYPEWRITER
+const roles=['Generative AI Engineer','LLM & RAG Specialist','WMS AI Architect','Full-Stack Builder'];
+let ri=0,ci=0,del=false;
+const tel=document.getElementById('typed');
+function type(){
+  const cur2=roles[ri];
+  if(!del){tel.textContent=cur2.slice(0,++ci);if(ci===cur2.length){del=true;setTimeout(type,2000);return;}setTimeout(type,52+Math.random()*18);}
+  else{tel.textContent=cur2.slice(0,--ci);if(ci===0){del=false;ri=(ri+1)%roles.length;setTimeout(type,300);return;}setTimeout(type,28);}
+}
+setTimeout(type,800);
+setInterval(()=>{const c=document.getElementById('tc');c.style.opacity=c.style.opacity==='0'?'1':'0';},500);
+
+// ═══ COUNT-UP
+function countUp(){document.querySelectorAll('.stat-num[data-count]').forEach(el=>{const target=+el.dataset.count,suf=el.dataset.suffix||'';let v=0;const inc=target/75;const t=setInterval(()=>{v+=inc;if(v>=target){v=target;clearInterval(t);}el.textContent=Math.floor(v)+suf;},16);});}
+setTimeout(countUp,600);
+
+// ═══ SKILL BARS
+const bObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.querySelectorAll('.br-fill[data-w]').forEach(b=>setTimeout(()=>b.style.width=b.dataset.w+'%',150));});},{threshold:.2});
+document.querySelectorAll('.flip-wrap').forEach(c=>bObs.observe(c));
+
+// ═══ PROJECT TILT
+document.querySelectorAll('.proj-card').forEach(card=>{
+  card.addEventListener('mousemove',e=>{const r=card.getBoundingClientRect(),cx=(e.clientX-r.left)/r.width-.5,cy=(e.clientY-r.top)/r.height-.5;card.style.transform=`perspective(600px) rotateY(${cx*14}deg) rotateX(${-cy*9}deg) scale(1.03)`;card.style.setProperty('--mx',((e.clientX-r.left)/r.width*100)+'%');card.style.setProperty('--my',((e.clientY-r.top)/r.height*100)+'%');});
+  card.addEventListener('mouseleave',()=>{card.style.transform='';});
+});
+
+// ═══ SCROLL REVEAL
+const obs=new IntersectionObserver(entries=>{entries.forEach((e,i)=>{if(e.isIntersecting)setTimeout(()=>e.target.classList.add('on'),(i%4)*80);});},{threshold:.07});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+// ═══ NAV
+window.addEventListener('scroll',()=>{document.getElementById('nav').style.background=scrollY>80?'rgba(2,8,24,.96)':'rgba(2,8,24,.65)';});
+
+// ═══ PARTICLE BURST
+function burst(e){const cs=['#00d4ff','#7c3aed','#06ffa5','#a78bfa','#fff'];for(let i=0;i<24;i++){const p=document.createElement('div');p.className='particle';const s=Math.random()*7+2,a=Math.random()*Math.PI*2,d=60+Math.random()*90;p.style.cssText=`width:${s}px;height:${s}px;background:${cs[~~(Math.random()*cs.length)]};left:${e.clientX}px;top:${e.clientY}px;--tx:${Math.cos(a)*d}px;--ty:${Math.sin(a)*d}px;--dur:${.5+Math.random()*.4}s`;document.body.appendChild(p);setTimeout(()=>p.remove(),1100);}}
+document.querySelectorAll('.btn-p,.btn-s,.nav-cta,.f-btn').forEach(b=>b.addEventListener('click',e=>burst(e)));
+
+// ═══ FORM
+document.getElementById('send-btn').addEventListener('click',async function(e){
+  const form=document.getElementById('contact-form');
+  if(!form.checkValidity()){form.reportValidity();return;}
+  const data=new FormData(form);burst(e);
+  this.textContent='Sending...';this.disabled=true;
+  const res=await fetch('https://api.web3forms.com/submit',{method:'POST',body:data});
+  const json=await res.json();
+  if(json.success){this.textContent='Message sent ✓';this.style.background='linear-gradient(135deg,var(--accent3),var(--accent))';form.reset();setTimeout(()=>{this.textContent='Send message →';this.style.background='';this.disabled=false;},3000);}
+  else{this.textContent='Failed — try again';this.style.background='';this.disabled=false;}
+});
+</script>
+</body>
+</html>
